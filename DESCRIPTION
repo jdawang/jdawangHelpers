@@ -1,0 +1,28 @@
+Package: jdawangHelpers
+Title: Helper Functions for Jacob Dawang's Blog Posts
+Version: 0.0.0.9000
+Authors@R:
+    person("Jacob", "Dawang", , "jacob@jacobdawang.com", role = c("aut", "cre"))
+Description: Shared utility functions for data processing and visualization in
+    blog posts at jacobdawang.com. Covers Edmonton building permits, transit
+    distances, neighbourhood classification, ggplot2 themes, and GT tables.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Imports:
+    dplyr,
+    forcats,
+    ggplot2 (>= 4.0.0),
+    gt,
+    purrr,
+    scales,
+    sf,
+    stringr,
+    tidyr,
+    tidytransit,
+    units,
+    viridis
+Suggests:
+    gganimate,
+    mountainmathHelpers

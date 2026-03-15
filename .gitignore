@@ -1,0 +1,17 @@
+# R package build outputs
+*.Rproj.user
+*.Rhistory
+*.RData
+*.Rproj
+/doc/
+/Meta/
+
+# renv — library is reproducible via renv::restore(), don't commit it
+renv/library/
+renv/local/
+renv/cellar/
+renv/staging/
+
+# R check artifacts
+/check/
+*.tar.gz
