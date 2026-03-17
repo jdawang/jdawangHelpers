@@ -3,6 +3,6 @@
 
 library(sf)
 
-henday <- read_sf("path/to/henday.geojson")
+henday <- read_sf("~/repos/website2/data/henday.geojson")
 
 usethis::use_data(henday, overwrite = TRUE)
