@@ -12,8 +12,8 @@ add_edmonton_neighbourhood_type(
 }
 \arguments{
 \item{bp}{An \code{sf} object of building permits. Must have a \code{neighbourhood}
-character column and point or polygon geometry in the same CRS as
-\code{mature_neighbourhood} and \code{henday}.}
+character column. If \code{bp} is in a different CRS than \code{mature_neighbourhood}
+or \code{henday}, the boundaries are automatically transformed to match \code{bp}.}
 
 \item{mature_neighbourhood}{An \code{sf} polygon of the mature neighbourhood
 boundary. Defaults to the bundled dataset.}

@@ -8,8 +8,8 @@
 #'    boundaries (e.g. permits geocoded to a road centreline).
 #'
 #' @param bp An `sf` object of building permits. Must have a `neighbourhood`
-#'   character column and point or polygon geometry in the same CRS as
-#'   `mature_neighbourhood` and `henday`.
+#'   character column. If `bp` is in a different CRS than `mature_neighbourhood`
+#'   or `henday`, the boundaries are automatically transformed to match `bp`.
 #' @param mature_neighbourhood An `sf` polygon of the mature neighbourhood
 #'   boundary. Defaults to the bundled dataset.
 #' @param henday An `sf` polygon of the Anthony Henday Drive boundary.
@@ -30,6 +30,10 @@ add_edmonton_neighbourhood_type <- function(
     "Between mature and Henday",
     "Outside Henday"
   )
+
+  bp_crs <- sf::st_crs(bp)
+  mature_neighbourhood <- sf::st_transform(mature_neighbourhood, bp_crs)
+  henday <- sf::st_transform(henday, bp_crs)
 
   bp_geom <- sf::st_geometry(bp)
 
