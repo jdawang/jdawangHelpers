@@ -1,0 +1,22 @@
+repos:
+-   repo: local
+    hooks:
+    -   id: air-format
+        name: Format R files with air
+        language: system
+        entry: air format
+        files: '\.(R|r)$'
+    -   id: roxygenize
+        name: Roxygenize documentation
+        language: system
+        entry: Rscript -e 'roxygen2::roxygenize()'
+        pass_filenames: false
+        files: '\.(R|r)$'
+-   repo: https://github.com/lorenzwalthert/precommit
+    rev: v0.4.3.9021
+    hooks:
+    -   id: parsable-R
+    -   id: no-browser-statement
+    -   id: deps-in-desc
+        exclude: '^(data-raw|renv)/'
+    -   id: use-tidy-description

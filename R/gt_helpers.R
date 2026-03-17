@@ -18,9 +18,9 @@ finalize_gt <- function(gt_tbl, source = CAPTION_COE, interactive = FALSE) {
   if (interactive) {
     gt_tbl <- gt_tbl |>
       gt::opt_interactive(
-        use_search    = TRUE,
+        use_search = TRUE,
         use_highlight = TRUE,
-        use_sorting   = TRUE
+        use_sorting = TRUE
       )
   }
   gt_tbl

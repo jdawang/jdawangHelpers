@@ -2,18 +2,17 @@
 % Please edit documentation in R/themes.R
 \name{theme_map}
 \alias{theme_map}
-\title{Clean map theme}
+\title{JD map theme}
 \usage{
-theme_map(base_theme = ggplot2::theme_void())
+theme_map(mode = c("dark", "light"))
 }
 \arguments{
-\item{base_theme}{A ggplot2 theme to use as the base. Defaults to
-\code{\link[ggplot2:ggtheme]{ggplot2::theme_void()}}.}
+\item{mode}{One of \code{"dark"} (default) or \code{"light"}. Passed to \code{\link[=theme_jd]{theme_jd()}}.}
 }
 \value{
 A \code{\link[ggplot2:theme]{ggplot2::theme()}} object.
 }
 \description{
-Strips axes, ticks, background rect, and grid lines from a base theme.
-Uses \verb{\%+replace\%} so overrides apply cleanly on top of the base.
+Strips axes, ticks, background rect, and grid lines from \code{\link[=theme_jd]{theme_jd()}}.
+Uses \verb{\%+replace\%} so the overrides apply cleanly.
 }

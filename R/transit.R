@@ -17,8 +17,12 @@
 #' @return An `sf` object with columns `stop_name`, `stop_name_short`, `status`
 #'   (`"existing"` or `"future"`), and point geometry.
 #' @export
-load_edmonton_transit_stops <- function(gtfs_path, service_date = NULL,
-                                        future_stops = NULL, crs = NULL) {
+load_edmonton_transit_stops <- function(
+  gtfs_path,
+  service_date = NULL,
+  future_stops = NULL,
+  crs = NULL
+) {
   gtfs <- tidytransit::read_gtfs(gtfs_path)
   route_ids <- c("021R", "022R", "023R")
 
@@ -31,20 +35,21 @@ load_edmonton_transit_stops <- function(gtfs_path, service_date = NULL,
 
   existing <- tidytransit::gtfs_as_sf(gtfs) |>
     tidytransit::filter_stops(
-      route_ids   = route_ids,
+      route_ids = route_ids,
       service_ids = service_ids
     ) |>
     dplyr::mutate(
       stop_name = dplyr::case_match(
         .data$stop_name,
         "Bay Enterprise Square  Station" ~ "Bay Enterprise Square Station",
-        "Churchill Stop"                 ~ "Churchill Station",
+        "Churchill Stop" ~ "Churchill Station",
         .default = .data$stop_name
       ),
       status = "existing"
     ) |>
     dplyr::filter(
-      !(.data$stop_name %in% c("Metro Line JTTl Track", "DL MacDonald Platform", "NAIT Station"))
+      !(.data$stop_name %in%
+        c("Metro Line JTTl Track", "DL MacDonald Platform", "NAIT Station"))
     )
 
   stops <- if (!is.null(future_stops)) {
@@ -56,13 +61,18 @@ load_edmonton_transit_stops <- function(gtfs_path, service_date = NULL,
 
   stops <- stops |>
     dplyr::group_by(.data$stop_name, .data$status) |>
-    dplyr::summarize(geometry = sf::st_union(.data$geometry), .groups = "drop") |>
+    dplyr::summarize(
+      geometry = sf::st_union(.data$geometry),
+      .groups = "drop"
+    ) |>
     dplyr::mutate(
-      geometry        = sf::st_centroid(.data$geometry),
+      geometry = sf::st_centroid(.data$geometry),
       stop_name_short = stringr::str_remove(.data$stop_name, " (Stop|Station)")
     )
 
-  if (!is.null(crs)) stops <- sf::st_transform(stops, crs)
+  if (!is.null(crs)) {
+    stops <- sf::st_transform(stops, crs)
+  }
   stops
 }
 
@@ -85,12 +95,13 @@ add_transit_distance <- function(data, transit_stops, status_filter = NULL) {
   } else {
     transit_stops
   }
-  data |> dplyr::mutate(
-    distance_from_lrt = structure(
-      apply(sf::st_distance(data, stops), 1, min) / 1000,
-      label = "Distance from closest LRT stop (km)"
+  data |>
+    dplyr::mutate(
+      distance_from_lrt = structure(
+        apply(sf::st_distance(data, stops), 1, min) / 1000,
+        label = "Distance from closest LRT stop (km)"
+      )
     )
-  )
 }
 
 #' Build concentric transit buffer rings
@@ -134,12 +145,16 @@ make_transit_buffers <- function(transit_stops, radii_km = c(1, 1.5, 2)) {
 #'
 #' @return The input with new columns `cum_units` and `ecdf_values`, ungrouped.
 #' @export
-add_ecdf_by_distance <- function(data, group_var = year, weight_var = units_added) {
+add_ecdf_by_distance <- function(
+  data,
+  group_var = year,
+  weight_var = units_added
+) {
   data |>
     dplyr::group_by({{ group_var }}) |>
     dplyr::arrange(.data$distance_from_lrt, .by_group = TRUE) |>
     dplyr::mutate(
-      cum_units   = cumsum({{ weight_var }}),
+      cum_units = cumsum({{ weight_var }}),
       ecdf_values = .data$cum_units / sum({{ weight_var }})
     ) |>
     dplyr::ungroup()

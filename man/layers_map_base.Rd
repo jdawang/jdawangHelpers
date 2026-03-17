@@ -22,6 +22,6 @@ Requires the \code{mountainmathHelpers} package (listed in \code{Suggests}).
 ggplot(data) +
   layers_map_base() +
   geom_sf(aes(colour = units_added)) +
-  theme_map_dark()
+  theme_map()
 }
 }

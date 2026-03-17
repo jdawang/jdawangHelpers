@@ -20,13 +20,16 @@
 #'   labs(title = "Cumulative units by LRT distance", caption = CAPTION_COE)
 #' }
 #' @export
-layers_transit_ecdf <- function(colour_var = year, x_max = 14,
-                                 show_800m_line = TRUE) {
+layers_transit_ecdf <- function(
+  colour_var = year,
+  x_max = 14,
+  show_800m_line = TRUE
+) {
   layers <- list(
     ggplot2::geom_step(
       ggplot2::aes(
-        x      = .data$distance_from_lrt,
-        y      = .data$ecdf_values,
+        x = .data$distance_from_lrt,
+        y = .data$ecdf_values,
         colour = factor({{ colour_var }})
       ),
       linewidth = 0.8
@@ -36,10 +39,13 @@ layers_transit_ecdf <- function(colour_var = year, x_max = 14,
     ggplot2::guides(colour = ggplot2::guide_legend(ncol = 2))
   )
   if (show_800m_line) {
-    layers <- c(layers, list(
-      ggplot2::geom_vline(xintercept = 0.8, linetype = "dashed"),
-      ggplot2::annotate("text", x = 1.3, y = 0.9, label = "800m")
-    ))
+    layers <- c(
+      layers,
+      list(
+        ggplot2::geom_vline(xintercept = 0.8, linetype = "dashed"),
+        ggplot2::annotate("text", x = 1.3, y = 0.9, label = "800m")
+      )
+    )
   }
   layers
 }
@@ -59,7 +65,7 @@ layers_transit_ecdf <- function(colour_var = year, x_max = 14,
 #' ggplot(data) +
 #'   layers_map_base() +
 #'   geom_sf(aes(colour = units_added)) +
-#'   theme_map_dark()
+#'   theme_map()
 #' }
 #' @export
 layers_map_base <- function(roads_type = c("major", "all")) {
@@ -68,7 +74,9 @@ layers_map_base <- function(roads_type = c("major", "all")) {
   }
   roads_layer <- if (match.arg(roads_type) == "major") {
     mountainmathHelpers::geom_roads(
-      transform = function(d) dplyr::filter(d, .data$kind %in% c("highway", "major_road"))
+      transform = function(d) {
+        dplyr::filter(d, .data$kind %in% c("highway", "major_road"))
+      }
     )
   } else {
     mountainmathHelpers::geom_roads(alpha = 0.5, color = "gray")

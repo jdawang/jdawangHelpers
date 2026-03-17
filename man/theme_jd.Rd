@@ -4,17 +4,22 @@
 \alias{theme_jd}
 \title{Jacob Dawang's base ggplot2 theme}
 \usage{
-theme_jd(...)
+theme_jd(mode = c("dark", "light"), ...)
 }
 \arguments{
-\item{...}{Arguments passed to \code{\link[ggplot2:ggtheme]{ggplot2::theme_dark()}}.}
+\item{mode}{One of \code{"dark"} (default) or \code{"light"}.}
+
+\item{...}{Arguments passed to the underlying base theme
+(\code{\link[ggplot2:ggtheme]{ggplot2::theme_dark()}} or \code{\link[ggplot2:ggtheme]{ggplot2::theme_light()}}).}
 }
 \value{
 A \code{\link[ggplot2:theme]{ggplot2::theme()}} object.
 }
 \description{
-A dark theme with the viridis magma palette baked in as the default discrete
-colour and fill palette (requires ggplot2 >= 4.0.0). Also sets the default
-ink colour for unmapped geoms to \verb{#663f5f}, eliminating the need to hardcode
-that value in every \verb{geom_*()} call.
+A theme with the viridis magma palette baked in as the default discrete and
+continuous colour and fill palettes (requires ggplot2 >= 4.0.0). Binned
+scales inherit the continuous palette. Uses the 4.0.0
+\code{ink}/\code{paper} arguments on the base theme to set geom colour defaults and
+the panel background blend. Ink is light (\verb{#d4b0cc}) in dark mode and the
+brand purple (\verb{#663f5f}) in light mode.
 }

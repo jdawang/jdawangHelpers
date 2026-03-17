@@ -1,48 +1,84 @@
+# Internal colour constants — not exported
+JD_INK_DARK <- "#d4b0cc" # light mauve — readable on dark backgrounds
+JD_INK_LIGHT <- "#663f5f" # brand purple — readable on light backgrounds
+JD_PAPER_DARK <- "#1e1e1e"
+JD_PAPER_LIGHT <- "#e8dde5"
+JD_BORDER_LIGHT <- "#c4a0be"
+
 #' Jacob Dawang's base ggplot2 theme
 #'
-#' A dark theme with the viridis magma palette baked in as the default discrete
-#' colour and fill palette (requires ggplot2 >= 4.0.0). Also sets the default
-#' ink colour for unmapped geoms to `#663f5f`, eliminating the need to hardcode
-#' that value in every `geom_*()` call.
+#' A theme with the viridis magma palette baked in as the default discrete and
+#' continuous colour and fill palettes (requires ggplot2 >= 4.0.0). Binned
+#' scales inherit the continuous palette. Uses the 4.0.0
+#' `ink`/`paper` arguments on the base theme to set geom colour defaults and
+#' the panel background blend. Ink is light (`#d4b0cc`) in dark mode and the
+#' brand purple (`#663f5f`) in light mode.
 #'
-#' @param ... Arguments passed to [ggplot2::theme_dark()].
+#' @param mode One of `"dark"` (default) or `"light"`.
+#' @param ... Arguments passed to the underlying base theme
+#'   ([ggplot2::theme_dark()] or [ggplot2::theme_light()]).
 #'
 #' @return A [ggplot2::theme()] object.
 #' @export
-theme_jd <- function(...) {
-  ggplot2::theme_dark(...) +
+theme_jd <- function(mode = c("dark", "light"), ...) {
+  mode <- match.arg(mode)
+
+  if (mode == "dark") {
+    base <- ggplot2::theme_dark(ink = JD_INK_DARK, paper = JD_PAPER_DARK, ...)
+    border_colour <- JD_INK_DARK
+    ink <- JD_INK_DARK
+  } else {
+    base <- ggplot2::theme_light(
+      ink = JD_INK_LIGHT,
+      paper = JD_PAPER_LIGHT,
+      ...
+    )
+    border_colour <- JD_BORDER_LIGHT
+    ink <- JD_INK_LIGHT
+  }
+
+  base +
     ggplot2::theme(
-      palette.colour.discrete = \(n) viridis::magma(n),
-      palette.fill.discrete   = \(n) viridis::magma(n),
-      geom = ggplot2::element_geom(ink = "#663f5f")
+      panel.border = ggplot2::element_rect(
+        colour = border_colour,
+        fill = NA,
+        linewidth = 0.4
+      ),
+      palette.colour.discrete = \(n) {
+        viridis::magma(n, begin = 0.15, end = 0.85)
+      },
+      palette.fill.discrete = \(n) viridis::magma(n, begin = 0.15, end = 0.85),
+      palette.colour.continuous = scales::colour_ramp(viridis::magma(
+        256,
+        begin = 0.15,
+        end = 0.85
+      )),
+      palette.fill.continuous = scales::colour_ramp(viridis::magma(
+        256,
+        begin = 0.15,
+        end = 0.85
+      )),
+      geom = ggplot2::element_geom(ink = ink)
     )
 }
 
-#' Clean map theme
+#' JD map theme
 #'
-#' Strips axes, ticks, background rect, and grid lines from a base theme.
-#' Uses `%+replace%` so overrides apply cleanly on top of the base.
+#' Strips axes, ticks, background rect, and grid lines from [theme_jd()].
+#' Uses `%+replace%` so the overrides apply cleanly.
 #'
-#' @param base_theme A ggplot2 theme to use as the base. Defaults to
-#'   [ggplot2::theme_void()].
+#' @param mode One of `"dark"` (default) or `"light"`. Passed to [theme_jd()].
 #'
 #' @return A [ggplot2::theme()] object.
+#' @importFrom ggplot2 %+replace%
 #' @export
-theme_map <- function(base_theme = ggplot2::theme_void()) {
-  base_theme %+replace%
+theme_map <- function(mode = c("dark", "light")) {
+  mode <- match.arg(mode)
+  theme_jd(mode = mode) %+replace%
     ggplot2::theme(
-      axis.text  = ggplot2::element_blank(),
+      axis.text = ggplot2::element_blank(),
       axis.ticks = ggplot2::element_blank(),
-      rect       = ggplot2::element_blank(),
+      rect = ggplot2::element_blank(),
       panel.grid = ggplot2::element_blank()
     )
 }
-
-#' Dark map theme
-#'
-#' Convenience wrapper combining [theme_map()] on top of [theme_jd()].
-#' Gives a dark background with no axes and the magma colour palette.
-#'
-#' @return A [ggplot2::theme()] object.
-#' @export
-theme_map_dark <- function() theme_map(theme_jd())

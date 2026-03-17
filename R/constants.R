@@ -5,11 +5,20 @@
 #'
 #' @export
 EDMONTON_RESIDENTIAL_BUILDING_TYPES <- c(
-  "Apartment (310)", "Apartment Condos (315)", "Apartments (310)",
-  "Backyard House (110)", "Duplex (210)", "Garden Suite (110)",
-  "Mixed Use (522)", "Row House (330)", "Row House Condo (335)",
-  "Row House Condos (335)", "Row Houses (330)", "Semi-Detached Condo (215)",
-  "Semi-Detached House (210)", "Single Detached Condo (115)",
+  "Apartment (310)",
+  "Apartment Condos (315)",
+  "Apartments (310)",
+  "Backyard House (110)",
+  "Duplex (210)",
+  "Garden Suite (110)",
+  "Mixed Use (522)",
+  "Row House (330)",
+  "Row House Condo (335)",
+  "Row House Condos (335)",
+  "Row Houses (330)",
+  "Semi-Detached Condo (215)",
+  "Semi-Detached House (210)",
+  "Single Detached Condo (115)",
   "Single Detached House (110)"
 )
 

@@ -20,48 +20,69 @@
 #'   The column has a `label` attribute set to `"Neighbourhood type"`.
 #' @export
 add_edmonton_neighbourhood_type <- function(
-    bp,
-    mature_neighbourhood = jdawangHelpers::mature_neighbourhood,
-    henday               = jdawangHelpers::henday) {
+  bp,
+  mature_neighbourhood = jdawangHelpers::mature_neighbourhood,
+  henday = jdawangHelpers::henday
+) {
+  levels <- c(
+    "Downtown",
+    "Mature",
+    "Between mature and Henday",
+    "Outside Henday"
+  )
 
-  levels <- c("Downtown", "Mature", "Between mature and Henday", "Outside Henday")
+  bp_geom <- sf::st_geometry(bp)
 
-  bp <- bp |> dplyr::mutate(
-    .mature  = sf::st_contains(sf::st_union(mature_neighbourhood), sf::st_geometry(dplyr::cur_data()), sparse = FALSE)[1, ] &
-               !sf::st_is_empty(sf::st_geometry(dplyr::cur_data())) &
-               !is.na(.data$neighbourhood),
-    .outside = !sf::st_contains(henday, sf::st_geometry(dplyr::cur_data()), sparse = FALSE)[1, ] &
-               !sf::st_is_empty(sf::st_geometry(dplyr::cur_data())),
-    .between = !sf::st_is_empty(sf::st_geometry(dplyr::cur_data())) & !.data$.mature & !.data$.outside,
-    neighbourhood_type = forcats::fct(
-      dplyr::case_when(
-        .data$neighbourhood == "DOWNTOWN" ~ "Downtown",
-        .data$.mature                     ~ "Mature",
-        .data$.outside                    ~ "Outside Henday",
-        .data$.between                    ~ "Between mature and Henday",
-        .default = NA_character_
-      ),
-      levels = levels
-    )
-  ) |>
+  bp <- bp |>
+    dplyr::mutate(
+      .mature = sf::st_contains(
+        sf::st_union(mature_neighbourhood),
+        bp_geom,
+        sparse = FALSE
+      )[1, ] &
+        !sf::st_is_empty(bp_geom) &
+        !is.na(.data$neighbourhood),
+      .outside = !sf::st_contains(henday, bp_geom, sparse = FALSE)[1, ] &
+        !sf::st_is_empty(bp_geom),
+      .between = !sf::st_is_empty(bp_geom) & !.data$.mature & !.data$.outside,
+      neighbourhood_type = forcats::fct(
+        dplyr::case_when(
+          .data$neighbourhood == "DOWNTOWN" ~ "Downtown",
+          .data$.mature ~ "Mature",
+          .data$.outside ~ "Outside Henday",
+          .data$.between ~ "Between mature and Henday",
+          .default = NA_character_
+        ),
+        levels = levels
+      )
+    ) |>
     dplyr::select(-".mature", -".outside", -".between")
 
   # Second pass: name-based fallback for permits not captured by spatial test
   outside_henday_names <- c(
-    "TRUMPETER", "STARLING", "KINGLET LAKES", "STONE CREEK",
-    "EDGEMONT", "DESROCHERS AREA", "RIVERVIEW AREA"
+    "TRUMPETER",
+    "STARLING",
+    "KINGLET LAKES",
+    "STONE CREEK",
+    "EDGEMONT",
+    "DESROCHERS AREA",
+    "RIVERVIEW AREA"
   )
   mature_names <- c("CALLINGWOOD NORTH", "CALLINGWOOD SOUTH")
 
-  bp |> dplyr::mutate(
-    neighbourhood_type = structure(
-      dplyr::case_when(
-        !is.na(.data$neighbourhood_type) ~ as.character(.data$neighbourhood_type),
-        .data$neighbourhood %in% outside_henday_names ~ "Outside Henday",
-        .data$neighbourhood %in% mature_names ~ "Mature",
-        .default = as.character(.data$neighbourhood_type)
-      ) |> forcats::fct(levels = levels),
-      label = "Neighbourhood type"
+  bp |>
+    dplyr::mutate(
+      neighbourhood_type = structure(
+        dplyr::case_when(
+          !is.na(.data$neighbourhood_type) ~ as.character(
+            .data$neighbourhood_type
+          ),
+          .data$neighbourhood %in% outside_henday_names ~ "Outside Henday",
+          .data$neighbourhood %in% mature_names ~ "Mature",
+          .default = as.character(.data$neighbourhood_type)
+        ) |>
+          forcats::fct(levels = levels),
+        label = "Neighbourhood type"
+      )
     )
-  )
 }
