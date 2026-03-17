@@ -98,3 +98,53 @@ test_that("add_edmonton_neighbourhood_type sets label attribute", {
   result <- add_edmonton_neighbourhood_type(bp, polys$mature, polys$henday)
   expect_equal(attr(result$neighbourhood_type, "label"), "Neighbourhood type")
 })
+
+test_that("add_edmonton_neighbourhood_type name fallback: new Outside Henday name", {
+  polys <- make_mock_polygons()
+  bp <- sf::st_sf(
+    neighbourhood = "ELLERSLIE INDUSTRIAL",
+    geometry = sf::st_sfc(sf::st_point(), crs = 32612)
+  )
+  result <- add_edmonton_neighbourhood_type(bp, polys$mature, polys$henday)
+  expect_equal(as.character(result$neighbourhood_type), "Outside Henday")
+})
+
+test_that("add_edmonton_neighbourhood_type name fallback: Between mature and Henday", {
+  polys <- make_mock_polygons()
+  bp <- sf::st_sf(
+    neighbourhood = "MICHAELS PARK",
+    geometry = sf::st_sfc(sf::st_point(), crs = 32612)
+  )
+  result <- add_edmonton_neighbourhood_type(bp, polys$mature, polys$henday)
+  expect_equal(as.character(result$neighbourhood_type), "Between mature and Henday")
+})
+
+test_that("add_edmonton_neighbourhood_type name fallback: new Mature name", {
+  polys <- make_mock_polygons()
+  bp <- sf::st_sf(
+    neighbourhood = "WOODCROFT",
+    geometry = sf::st_sfc(sf::st_point(), crs = 32612)
+  )
+  result <- add_edmonton_neighbourhood_type(bp, polys$mature, polys$henday)
+  expect_equal(as.character(result$neighbourhood_type), "Mature")
+})
+
+test_that("add_edmonton_neighbourhood_type applies address override to Mature", {
+  polys <- make_mock_polygons()
+  # Point outside mature boundary, but address override should force Mature
+  bp <- sf::st_sf(
+    neighbourhood = "SOME NEIGHBOURHOOD",
+    address = "8944 - 145 STREET NW",
+    geometry = sf::st_sfc(sf::st_point(c(2, 0)), crs = 32612)
+  )
+  result <- add_edmonton_neighbourhood_type(bp, polys$mature, polys$henday)
+  expect_equal(as.character(result$neighbourhood_type), "Mature")
+})
+
+test_that("add_edmonton_neighbourhood_type skips address override when no address column", {
+  polys <- make_mock_polygons()
+  bp <- make_bp_point(2, 0, "WINDERMERE")
+  result <- add_edmonton_neighbourhood_type(bp, polys$mature, polys$henday)
+  # Should still be Between mature and Henday from spatial test, not Mature
+  expect_equal(as.character(result$neighbourhood_type), "Between mature and Henday")
+})

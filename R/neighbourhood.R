@@ -66,11 +66,29 @@ add_edmonton_neighbourhood_type <- function(
     "STONE CREEK",
     "EDGEMONT",
     "DESROCHERS AREA",
-    "RIVERVIEW AREA"
+    "RIVERVIEW AREA",
+    "THE HAMPTONS, GRANVILLE",
+    "RUTHERFORD, RUTHERFORD",
+    "THE UPLANDS, RIVER'S EDGE",
+    "ELLERSLIE INDUSTRIAL"
   )
-  mature_names <- c("CALLINGWOOD NORTH", "CALLINGWOOD SOUTH")
+  between_henday_mature_names <- c(
+    "ELSINORE, ELSINORE",
+    "MICHAELS PARK",
+    "BRANDER GARDENS",
+    "PILOT SOUND AREA WEST PORTION, MCCONACHIE",
+    "YOUNGSTOWN INDUSTRIAL"
+  )
+  mature_names <- c(
+    "CALLINGWOOD NORTH",
+    "CALLINGWOOD SOUTH",
+    "CENTRAL MCDOUGALL, QUEEN MARY PARK",
+    "WOODCROFT",
+    "BOYLE STREET",
+    "ELMWOOD"
+  )
 
-  bp |>
+  bp <- bp |>
     dplyr::mutate(
       neighbourhood_type = structure(
         dplyr::case_when(
@@ -78,6 +96,8 @@ add_edmonton_neighbourhood_type <- function(
             .data$neighbourhood_type
           ),
           .data$neighbourhood %in% outside_henday_names ~ "Outside Henday",
+          .data$neighbourhood %in%
+            between_henday_mature_names ~ "Between mature and Henday",
           .data$neighbourhood %in% mature_names ~ "Mature",
           .default = as.character(.data$neighbourhood_type)
         ) |>
@@ -85,4 +105,25 @@ add_edmonton_neighbourhood_type <- function(
         label = "Neighbourhood type"
       )
     )
+
+  # Third pass: address-level overrides (only when `address` column is present)
+  address_mature <- c(
+    "8944 - 145 STREET NW",
+    "11216 - 122 STREET NW",
+    "9509 - 99B STREET NW"
+  )
+  if ("address" %in% names(bp)) {
+    bp <- bp |>
+      dplyr::mutate(
+        neighbourhood_type = structure(
+          dplyr::case_when(
+            .data$address %in% address_mature ~ "Mature",
+            .default = as.character(.data$neighbourhood_type)
+          ) |>
+            forcats::fct(levels = levels),
+          label = "Neighbourhood type"
+        )
+      )
+  }
+  bp
 }

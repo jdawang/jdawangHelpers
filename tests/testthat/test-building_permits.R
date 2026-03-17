@@ -77,6 +77,11 @@ test_that("clean_edmonton_bp_columns transforms CRS when crs is provided", {
   expect_equal(sf::st_crs(result)$epsg, 32612)
 })
 
+test_that("clean_edmonton_bp_columns parses date_issued as Date", {
+  result <- clean_edmonton_bp_columns(make_raw_bp())
+  expect_s3_class(result$date_issued, "Date")
+})
+
 # filter_edmonton_residential ------------------------------------------------
 
 test_that("filter_edmonton_residential keeps residential rows", {

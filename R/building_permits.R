@@ -36,6 +36,8 @@ clean_edmonton_bp_columns <- function(bp, crs = NULL) {
       job_description = job_descri,
       date_issued = date_issue
     )
+  bp <- bp |>
+    dplyr::mutate(date_issued = as.Date(.data$date_issued))
   if (!is.null(crs)) {
     bp <- sf::st_transform(bp, crs)
   }
