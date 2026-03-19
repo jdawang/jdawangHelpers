@@ -57,29 +57,45 @@ layers_transit_ecdf <- function(
 #'
 #' @param roads_type `"major"` (default) to show only highways and major roads,
 #'   or `"all"` to show all roads at reduced opacity.
+#' @param mode One of `"dark"` (default) or `"light"`. Controls the default
+#'   road colour: light grey (`"#aaaaaa"`) in dark mode, dark grey (`"#444444"`)
+#'   in light mode. Ignored when `roads_colour` is supplied.
+#' @param roads_colour Road line colour. Overrides the `mode` default.
+#' @param roads_alpha Road line alpha (opacity). Defaults to `0.5`.
 #'
 #' @return A list of two ggplot2 layers.
 #'
 #' @examples
 #' \dontrun{
 #' ggplot(data) +
-#'   layers_map_base() +
+#'   layers_map_base(mode = "dark") +
 #'   geom_sf(aes(colour = units_added)) +
 #'   theme_map()
 #' }
 #' @export
-layers_map_base <- function(roads_type = c("major", "all")) {
+layers_map_base <- function(
+  roads_type = c("major", "all"),
+  mode = c("dark", "light"),
+  roads_colour = NULL,
+  roads_alpha = 0.5
+) {
   if (!requireNamespace("mountainmathHelpers", quietly = TRUE)) {
     stop("Package 'mountainmathHelpers' is required for layers_map_base().")
+  }
+  mode <- match.arg(mode)
+  if (is.null(roads_colour)) {
+    roads_colour <- if (mode == "dark") "#aaaaaa" else "#444444"
   }
   roads_layer <- if (match.arg(roads_type) == "major") {
     mountainmathHelpers::geom_roads(
       transform = function(d) {
         dplyr::filter(d, .data$kind %in% c("highway", "major_road"))
-      }
+      },
+      color = roads_colour,
+      alpha = roads_alpha
     )
   } else {
-    mountainmathHelpers::geom_roads(alpha = 0.5, color = "gray")
+    mountainmathHelpers::geom_roads(alpha = roads_alpha, color = roads_colour)
   }
   list(mountainmathHelpers::geom_water(), roads_layer)
 }

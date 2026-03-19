@@ -4,11 +4,24 @@
 \alias{layers_map_base}
 \title{Map base layers (water + roads)}
 \usage{
-layers_map_base(roads_type = c("major", "all"))
+layers_map_base(
+  roads_type = c("major", "all"),
+  mode = c("dark", "light"),
+  roads_colour = NULL,
+  roads_alpha = 0.5
+)
 }
 \arguments{
 \item{roads_type}{\code{"major"} (default) to show only highways and major roads,
 or \code{"all"} to show all roads at reduced opacity.}
+
+\item{mode}{One of \code{"dark"} (default) or \code{"light"}. Controls the default
+road colour: light grey (\code{"#aaaaaa"}) in dark mode, dark grey (\code{"#444444"})
+in light mode. Ignored when \code{roads_colour} is supplied.}
+
+\item{roads_colour}{Road line colour. Overrides the \code{mode} default.}
+
+\item{roads_alpha}{Road line alpha (opacity). Defaults to \code{0.5}.}
 }
 \value{
 A list of two ggplot2 layers.
@@ -20,7 +33,7 @@ Requires the \code{mountainmathHelpers} package (listed in \code{Suggests}).
 \examples{
 \dontrun{
 ggplot(data) +
-  layers_map_base() +
+  layers_map_base(mode = "dark") +
   geom_sf(aes(colour = units_added)) +
   theme_map()
 }

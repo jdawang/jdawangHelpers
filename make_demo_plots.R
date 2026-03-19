@@ -5,6 +5,7 @@ devtools::load_all()
 library(ggplot2)
 library(sf)
 library(gridExtra)
+options(nextzen_API_key = Sys.getenv("NEXTZEN_API_KEY"))
 
 # ── theme_jd demo ─────────────────────────────────────────────────────────────
 # Uses iris: 3 species → shows the magma discrete palette
@@ -99,17 +100,14 @@ nc$sids_rate <- nc$SID74 / nc$BIR74 * 1000 # SID deaths per 1 000 births
 
 make_map_plot <- function(mode) {
   title_suffix <- if (mode == "dark") "dark mode" else "light mode"
-  bg_colour <- if (mode == "dark") "#1a1318" else "#e8dde5"
   ggplot(nc) +
     geom_sf(aes(fill = sids_rate), colour = NA) +
     labs(
       title = paste0("theme_map() — ", title_suffix),
       subtitle = "North Carolina SIDS rate by county, 1974–78",
-      caption = "No axes · no ticks · no grid · no background rect"
+      caption = "No axes · no ticks · no grid · paper background from theme_jd()"
     ) +
-    theme_map(mode = mode) +
-    # restore plot background so the two panels look distinct when saved
-    theme(plot.background = element_rect(fill = bg_colour, colour = NA))
+    theme_map(mode = mode)
 }
 
 m_dark <- make_map_plot("dark")
@@ -133,7 +131,6 @@ nc$sids_cat <- cut(
 
 make_map_discrete_plot <- function(mode) {
   title_suffix <- if (mode == "dark") "dark mode" else "light mode"
-  bg_colour <- if (mode == "dark") "#1a1318" else "#e8dde5"
   ggplot(nc) +
     geom_sf(aes(fill = sids_cat), colour = NA) +
     labs(
@@ -142,8 +139,7 @@ make_map_discrete_plot <- function(mode) {
       fill = "SIDS rate",
       caption = "Magma viridis discrete palette · geom_sf"
     ) +
-    theme_map(mode = mode) +
-    theme(plot.background = element_rect(fill = bg_colour, colour = NA))
+    theme_map(mode = mode)
 }
 
 md_dark <- make_map_discrete_plot("dark")
@@ -159,7 +155,6 @@ message("Saved theme_map_discrete_demo.png")
 # Two panels: dark and light mode
 
 make_map_binned_plot <- function(mode) {
-  bg_colour <- if (mode == "dark") "#1a1318" else "#e8dde5"
   ggplot(nc) +
     geom_sf(aes(fill = sids_rate), colour = NA) +
     scale_fill_binned() +
@@ -171,8 +166,7 @@ make_map_binned_plot <- function(mode) {
       subtitle = "North Carolina SIDS rate by county, 1974–78 (binned scale)",
       caption = "Magma viridis binned fill palette · scale_fill_binned()"
     ) +
-    theme_map(mode = mode) +
-    theme(plot.background = element_rect(fill = bg_colour, colour = NA))
+    theme_map(mode = mode)
 }
 
 mb_dark <- make_map_binned_plot("dark")
@@ -182,3 +176,38 @@ png("theme_map_binned_demo.png", width = 1400, height = 600, res = 120)
 grid.arrange(mb_dark, mb_light, ncol = 2)
 dev.off()
 message("Saved theme_map_binned_demo.png")
+
+# ── theme_map with geom_water / geom_roads (Edmonton) ─────────────────────────
+# Validates that theme_map() leaves backgrounds transparent so mountainmath
+# tile layers (water + roads) are visible.  Uses the bundled henday polygon as
+# the data extent so the tile fetch is centred on Edmonton.
+# Requires: mountainmathHelpers, jdawangHelpers bundled data
+
+if (requireNamespace("mountainmathHelpers", quietly = TRUE)) {
+  library(mountainmathHelpers)
+
+  # Use the Henday boundary (bundled) as the bounding geometry
+  edmonton_extent <- sf::st_transform(henday, 4326)
+
+  make_edmonton_map <- function(mode) {
+    ggplot(edmonton_extent) +
+      layers_map_base(roads_type = "all", mode = mode) +
+      geom_sf(fill = NA, colour = "firebrick", linewidth = 0.8) +
+      theme_map(mode = mode) +
+      labs(
+        title = paste0("theme_map() + layers_map_base() — ", mode, " mode"),
+        subtitle = "Edmonton (Anthony Henday boundary); water + roads should be visible",
+        caption = "mountainmathHelpers tiles · jdawangHelpers::theme_map() + layers_map_base()"
+      )
+  }
+
+  em_dark <- make_edmonton_map("dark")
+  em_light <- make_edmonton_map("light")
+
+  png("theme_map_edmonton_demo.png", width = 1400, height = 700, res = 120)
+  grid.arrange(em_dark, em_light, ncol = 2)
+  dev.off()
+  message("Saved theme_map_edmonton_demo.png")
+} else {
+  message("Skipping Edmonton tile demo — mountainmathHelpers not available")
+}

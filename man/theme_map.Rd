@@ -13,6 +13,12 @@ theme_map(mode = c("dark", "light"))
 A \code{\link[ggplot2:theme]{ggplot2::theme()}} object.
 }
 \description{
-Strips axes, ticks, background rect, and grid lines from \code{\link[=theme_jd]{theme_jd()}}.
-Uses \verb{\%+replace\%} so the overrides apply cleanly.
+Strips axes, ticks, grid lines, and the panel background from \code{\link[=theme_jd]{theme_jd()}},
+leaving the panel transparent so tile layers (e.g. \code{geom_water()},
+\code{geom_roads()}) render correctly. \code{plot.background} is intentionally \emph{not}
+overridden, so the mode-appropriate paper colour set by \code{\link[=theme_jd]{theme_jd()}} shows
+through automatically (dark in dark mode, light in light mode).
+Uses \verb{\%+replace\%} so the overrides apply cleanly; \code{panel.background} and
+\code{panel.border} are overridden explicitly because \verb{\%+replace\%} does not
+cascade through the theme inheritance hierarchy.
 }

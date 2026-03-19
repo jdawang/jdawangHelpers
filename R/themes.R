@@ -64,8 +64,14 @@ theme_jd <- function(mode = c("dark", "light"), ...) {
 
 #' JD map theme
 #'
-#' Strips axes, ticks, background rect, and grid lines from [theme_jd()].
-#' Uses `%+replace%` so the overrides apply cleanly.
+#' Strips axes, ticks, grid lines, and the panel background from [theme_jd()],
+#' leaving the panel transparent so tile layers (e.g. `geom_water()`,
+#' `geom_roads()`) render correctly. `plot.background` is intentionally *not*
+#' overridden, so the mode-appropriate paper colour set by [theme_jd()] shows
+#' through automatically (dark in dark mode, light in light mode).
+#' Uses `%+replace%` so the overrides apply cleanly; `panel.background` and
+#' `panel.border` are overridden explicitly because `%+replace%` does not
+#' cascade through the theme inheritance hierarchy.
 #'
 #' @param mode One of `"dark"` (default) or `"light"`. Passed to [theme_jd()].
 #'
@@ -74,11 +80,15 @@ theme_jd <- function(mode = c("dark", "light"), ...) {
 #' @export
 theme_map <- function(mode = c("dark", "light")) {
   mode <- match.arg(mode)
+  paper <- if (mode == "dark") JD_PAPER_DARK else JD_PAPER_LIGHT
   theme_jd(mode = mode) %+replace%
     ggplot2::theme(
       axis.text = ggplot2::element_blank(),
       axis.ticks = ggplot2::element_blank(),
       rect = ggplot2::element_blank(),
+      panel.background = ggplot2::element_blank(),
+      plot.background = ggplot2::element_rect(fill = paper, colour = NA),
+      panel.border = ggplot2::element_blank(),
       panel.grid = ggplot2::element_blank()
     )
 }
