@@ -4,10 +4,13 @@
 \alias{theme_jd}
 \title{Jacob Dawang's base ggplot2 theme}
 \usage{
-theme_jd(mode = c("dark", "light"), ...)
+theme_jd(mode = c("dark", "light"), base_family = "Source Sans Pro", ...)
 }
 \arguments{
 \item{mode}{One of \code{"dark"} (default) or \code{"light"}.}
+
+\item{base_family}{Base font family. Defaults to \code{"Source Sans Pro"} to
+match the jacobdawang.com website font.}
 
 \item{...}{Arguments passed to the underlying base theme
 (\code{\link[ggplot2:ggtheme]{ggplot2::theme_dark()}} or \code{\link[ggplot2:ggtheme]{ggplot2::theme_light()}}).}

@@ -15,22 +15,30 @@ JD_BORDER_LIGHT <- "#c4a0be"
 #' brand purple (`#663f5f`) in light mode.
 #'
 #' @param mode One of `"dark"` (default) or `"light"`.
+#' @param base_family Base font family. Defaults to `"Source Sans Pro"` to
+#'   match the jacobdawang.com website font.
 #' @param ... Arguments passed to the underlying base theme
 #'   ([ggplot2::theme_dark()] or [ggplot2::theme_light()]).
 #'
 #' @return A [ggplot2::theme()] object.
 #' @export
-theme_jd <- function(mode = c("dark", "light"), ...) {
+theme_jd <- function(mode = c("dark", "light"), base_family = "Source Sans Pro", ...) {
   mode <- match.arg(mode)
 
   if (mode == "dark") {
-    base <- ggplot2::theme_dark(ink = JD_INK_DARK, paper = JD_PAPER_DARK, ...)
+    base <- ggplot2::theme_dark(
+      ink = JD_INK_DARK,
+      paper = JD_PAPER_DARK,
+      base_family = base_family,
+      ...
+    )
     border_colour <- JD_INK_DARK
     ink <- JD_INK_DARK
   } else {
     base <- ggplot2::theme_light(
       ink = JD_INK_LIGHT,
       paper = JD_PAPER_LIGHT,
+      base_family = base_family,
       ...
     )
     border_colour <- JD_BORDER_LIGHT
