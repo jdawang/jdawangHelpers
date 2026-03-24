@@ -15,10 +15,12 @@ permissions: read-all
 jobs:
   lint-changed-files:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/rocker-org/geospatial:latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: r-lib/actions/setup-r@v2
 
