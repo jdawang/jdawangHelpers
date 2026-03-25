@@ -23,12 +23,12 @@ jobs:
       - name: Install libmagick
         run: |
           sudo apt update
-          && sudo apt install software-properties-common
-          && sudo add-apt-repository universe
-          && sudo add-apt-repository multiverse
-          && sudo add-apt-repository restricted
-          && sudo add-apt-repository main 
-          && sudo apt-get install -y libmagick++-dev
+          sudo apt install software-properties-common
+          sudo add-apt-repository universe
+          sudo add-apt-repository multiverse
+          sudo add-apt-repository restricted
+          sudo add-apt-repository main 
+          sudo apt-get install -y libmagick++-dev
 
       - uses: actions/checkout@v6
 
