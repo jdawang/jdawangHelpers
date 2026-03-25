@@ -23,7 +23,7 @@ jobs:
       - name: Install libmagick
         run: |
           sudo apt update
-          sudo apt install software-properties-common
+          sudo apt-get install -y software-properties-common
           sudo add-apt-repository universe
           sudo add-apt-repository multiverse
           sudo add-apt-repository restricted
