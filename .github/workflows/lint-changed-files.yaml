@@ -21,7 +21,12 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Install libmagick
-        run: sudo apt-get install -y libmagick++-dev
+        run: |
+          sudo add-apt-repository universe
+          && sudo add-apt-repository multiverse
+          && sudo add-apt-repository restricted
+          && sudo add-apt-repository main 
+          && sudo apt-get install -y libmagick++-dev
 
       - uses: actions/checkout@v6
 
