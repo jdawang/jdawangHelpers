@@ -2,7 +2,7 @@
 JD_INK_DARK <- "#d4b0cc" # light mauve — readable on dark backgrounds
 JD_INK_LIGHT <- "#663f5f" # brand purple — readable on light backgrounds
 JD_PAPER_DARK <- "#1e1e1e"
-JD_PAPER_LIGHT <- "#e8dde5"
+JD_PAPER_LIGHT <- "#f4eff2"
 JD_BORDER_LIGHT <- "#c4a0be"
 
 #' Jacob Dawang's base ggplot2 theme
@@ -66,7 +66,8 @@ theme_jd <- function(mode = c("dark", "light"), base_family = "Source Sans Pro",
         begin = 0.15,
         end = 0.85
       )),
-      geom = ggplot2::element_geom(ink = ink)
+      geom = ggplot2::element_geom(ink = ink),
+      plot.title = ggplot2::element_text(face = "bold")
     )
 }
 
