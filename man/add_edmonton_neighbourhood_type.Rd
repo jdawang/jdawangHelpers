@@ -28,11 +28,15 @@ The column has a \code{label} attribute set to \code{"Neighbourhood type"}.
 }
 \description{
 Classifies each permit into one of: Downtown, Mature, Between mature and
-Henday, Outside Henday. Uses two passes:
+Henday, Outside Henday. Uses three passes:
 \enumerate{
 \item Spatial containment tests against the mature neighbourhood and Henday
 boundaries.
-\item A name-based fallback for known edge cases that fall outside the spatial
-boundaries (e.g. permits geocoded to a road centreline).
+\item Name propagation: any permit whose neighbourhood has at least one
+spatially-classified permit inherits that classification. This handles
+permits with missing geometry (e.g. new subdivisions where the lot is not
+yet geocoded).
+\item A hard-coded name fallback for known edge cases not covered by spatial
+data or propagation.
 }
 }

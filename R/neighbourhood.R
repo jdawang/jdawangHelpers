@@ -1,11 +1,15 @@
 #' Add Edmonton neighbourhood type classification
 #'
 #' Classifies each permit into one of: Downtown, Mature, Between mature and
-#' Henday, Outside Henday. Uses two passes:
+#' Henday, Outside Henday. Uses three passes:
 #' 1. Spatial containment tests against the mature neighbourhood and Henday
 #'    boundaries.
-#' 2. A name-based fallback for known edge cases that fall outside the spatial
-#'    boundaries (e.g. permits geocoded to a road centreline).
+#' 2. Name propagation: any permit whose neighbourhood has at least one
+#'    spatially-classified permit inherits that classification. This handles
+#'    permits with missing geometry (e.g. new subdivisions where the lot is not
+#'    yet geocoded).
+#' 3. A hard-coded name fallback for known edge cases not covered by spatial
+#'    data or propagation.
 #'
 #' @param bp An `sf` object of building permits. Must have a `neighbourhood`
 #'   character column. If `bp` is in a different CRS than `mature_neighbourhood`
@@ -48,7 +52,43 @@ add_edmonton_neighbourhood_type <- function(
         !is.na(.data$neighbourhood),
       .outside = !sf::st_contains(henday, bp_geom, sparse = FALSE)[1, ] &
         !sf::st_is_empty(bp_geom),
-      .between = !sf::st_is_empty(bp_geom) & !.data$.mature & !.data$.outside,
+      .between = !sf::st_is_empty(bp_geom) & !.data$.mature & !.data$.outside
+    )
+
+  # Second pass: propagate spatial classification by neighbourhood name.
+  # Permits with empty geometry in a neighbourhood where at least one permit was
+  # spatially classified inherit that classification. Priority: Mature >
+  # Outside Henday > Between mature and Henday (matching the case_when order).
+  mature_spatial_names <- unique(
+    dplyr::pull(
+      dplyr::filter(bp, .data$.mature, !is.na(.data$neighbourhood)),
+      .data$neighbourhood
+    )
+  )
+  outside_spatial_names <- unique(
+    dplyr::pull(
+      dplyr::filter(bp, .data$.outside, !is.na(.data$neighbourhood)),
+      .data$neighbourhood
+    )
+  )
+  between_spatial_names <- unique(
+    dplyr::pull(
+      dplyr::filter(bp, .data$.between, !is.na(.data$neighbourhood)),
+      .data$neighbourhood
+    )
+  )
+
+  bp <- bp |>
+    dplyr::mutate(
+      .mature = .data$.mature |
+        (!is.na(.data$neighbourhood) &
+          .data$neighbourhood %in% mature_spatial_names),
+      .outside = .data$.outside |
+        (!is.na(.data$neighbourhood) &
+          .data$neighbourhood %in% outside_spatial_names),
+      .between = .data$.between |
+        (!is.na(.data$neighbourhood) &
+          .data$neighbourhood %in% between_spatial_names),
       neighbourhood_type = forcats::fct(
         dplyr::case_when(
           .data$neighbourhood == "DOWNTOWN" ~ "Downtown",
@@ -62,7 +102,8 @@ add_edmonton_neighbourhood_type <- function(
     ) |>
     dplyr::select(-".mature", -".outside", -".between")
 
-  # Second pass: name-based fallback for permits not captured by spatial test
+  # Third pass: hard-coded name fallback for known edge cases not covered by
+  # spatial data or propagation
   outside_henday_names <- c(
     "TRUMPETER",
     "STARLING",
