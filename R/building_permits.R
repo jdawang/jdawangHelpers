@@ -63,7 +63,7 @@ filter_edmonton_residential <- function(bp) {
 #' Add project type categorization to Edmonton building permits
 #'
 #' Creates a `project_type` factor column classifying each permit into one of:
-#' New SFH, Addition/Conversion, Backyard House, Duplex to Fourplex,
+#' Single detached, Addition/Conversion, Backyard House, Duplex to Fourplex,
 #' Fiveplex to Eightplex, 9+ Row House, 9+ Apartment.
 #'
 #' Requires columns `building_type`, `work_type`, and `units_added`.
@@ -90,7 +90,7 @@ add_edmonton_project_type <- function(bp) {
               .data$work_type,
               stringr::coll("new", ignore_case = TRUE)
             ) &
-              .data$units_added == 1 ~ "New SFH",
+              .data$units_added == 1 ~ "Single detached",
             .data$work_type %in%
               c(
                 "(03) Interior Alterations",
@@ -111,7 +111,7 @@ add_edmonton_project_type <- function(bp) {
             .default = NA_character_
           ),
           levels = c(
-            "New SFH",
+            "Single detached",
             "Addition/Conversion",
             "Backyard House",
             "Duplex to Fourplex",

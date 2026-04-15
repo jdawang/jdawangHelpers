@@ -17,7 +17,7 @@ axis/legend title.
 }
 \description{
 Creates a \code{project_type} factor column classifying each permit into one of:
-New SFH, Addition/Conversion, Backyard House, Duplex to Fourplex,
+Single detached, Addition/Conversion, Backyard House, Duplex to Fourplex,
 Fiveplex to Eightplex, 9+ Row House, 9+ Apartment.
 }
 \details{

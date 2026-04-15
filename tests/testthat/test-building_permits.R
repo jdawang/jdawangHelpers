@@ -126,10 +126,10 @@ test_that("add_edmonton_project_type classifies Garden Suite as Backyard House",
   expect_equal(as.character(result$project_type), "Backyard House")
 })
 
-test_that("add_edmonton_project_type classifies New SFH", {
+test_that("add_edmonton_project_type classifies Single detached", {
   bp <- make_bp_for_project_type("Single Detached House (110)", "(01) New", 1)
   result <- add_edmonton_project_type(bp)
-  expect_equal(as.character(result$project_type), "New SFH")
+  expect_equal(as.character(result$project_type), "Single detached")
 })
 
 test_that("add_edmonton_project_type classifies Addition/Conversion", {
@@ -173,7 +173,7 @@ test_that("add_edmonton_project_type returns factor with all levels", {
   expect_equal(
     levels(result$project_type),
     c(
-      "New SFH",
+      "Single detached",
       "Addition/Conversion",
       "Backyard House",
       "Duplex to Fourplex",
