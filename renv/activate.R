@@ -18,14 +18,8 @@ local({
     on.exit(
       {
         utils::Rprof(NULL)
-        elapsed <- signif(
-          difftime(Sys.time(), start, units = "auto"),
-          digits = 2L
-        )
-        writeLines(sprintf(
-          "- renv took %s to run the autoloader.",
-          format(elapsed)
-        ))
+        elapsed <- signif(difftime(Sys.time(), start, units = "auto"), digits = 2L)
+        writeLines(sprintf("- renv took %s to run the autoloader.", format(elapsed)))
         writeLines(sprintf("- Profile: %s", profile))
         print(utils::summaryRprof(profile))
       },
@@ -575,10 +569,7 @@ local({
       on.exit(do.call(base::options, saved), add = TRUE)
     }
 
-    url <- file.path(
-      "https://api.github.com/repos/rstudio/renv/tarball",
-      version
-    )
+    url <- file.path("https://api.github.com/repos/rstudio/renv/tarball", version)
     name <- sprintf("renv_%s.tar.gz", version)
     destfile <- file.path(tempdir(), name)
 
@@ -815,12 +806,7 @@ local({
 
     # read version
     version <- "unknown"
-    for (field in c(
-      "UBUNTU_CODENAME",
-      "VERSION_CODENAME",
-      "VERSION_ID",
-      "BUILD_ID"
-    )) {
+    for (field in c("UBUNTU_CODENAME", "VERSION_CODENAME", "VERSION_ID", "BUILD_ID")) {
       if (field %in% names(vars) && nzchar(vars[[field]])) {
         version <- vars[[field]]
         break
@@ -1000,11 +986,7 @@ local({
     }
 
     # check for a profile file (nothing to do if it doesn't exist)
-    path <- renv_bootstrap_paths_renv(
-      "profile",
-      profile = FALSE,
-      project = project
-    )
+    path <- renv_bootstrap_paths_renv("profile", profile = FALSE, project = project)
     if (!file.exists(path)) {
       return(NULL)
     }
@@ -1134,16 +1116,9 @@ local({
     }
   }
 
-  renv_bootstrap_version_friendly <- function(
-    version,
-    shafmt = NULL,
-    sha = NULL
-  ) {
+  renv_bootstrap_version_friendly <- function(version, shafmt = NULL, sha = NULL) {
     sha <- sha %||% attr(version, "sha", exact = TRUE)
-    parts <- c(
-      version,
-      sprintf(shafmt %||% " [sha: %s]", substring(sha, 1L, 7L))
-    )
+    parts <- c(version, sprintf(shafmt %||% " [sha: %s]", substring(sha, 1L, 7L)))
     paste(parts, collapse = "")
   }
 

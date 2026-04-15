@@ -34,6 +34,7 @@ theme_jd <- function(mode = c("dark", "light"), base_family = "Source Sans Pro",
     )
     border_colour <- JD_INK_DARK
     ink <- JD_INK_DARK
+    paper <- JD_PAPER_DARK
   } else {
     base <- ggplot2::theme_light(
       ink = JD_INK_LIGHT,
@@ -43,6 +44,7 @@ theme_jd <- function(mode = c("dark", "light"), base_family = "Source Sans Pro",
     )
     border_colour <- JD_BORDER_LIGHT
     ink <- JD_INK_LIGHT
+    paper <- JD_PAPER_LIGHT
   }
 
   base +
@@ -67,7 +69,9 @@ theme_jd <- function(mode = c("dark", "light"), base_family = "Source Sans Pro",
         end = 0.85
       )),
       geom = ggplot2::element_geom(ink = ink),
-      plot.title = ggplot2::element_text(face = "bold")
+      plot.title = ggplot2::element_text(face = "bold"),
+      strip.background = ggplot2::element_rect(fill = ink, colour = NA),
+      strip.text = ggplot2::element_text(colour = paper)
     )
 }
 
