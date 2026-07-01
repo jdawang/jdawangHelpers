@@ -13,7 +13,7 @@ theme_jd(mode = c("dark", "light"), base_family = "Source Sans Pro", ...)
 match the jacobdawang.com website font.}
 
 \item{...}{Arguments passed to the underlying base theme
-(\code{\link[ggplot2:ggtheme]{ggplot2::theme_dark()}} or \code{\link[ggplot2:ggtheme]{ggplot2::theme_light()}}).}
+(\code{\link[ggplot2:theme_dark]{ggplot2::theme_dark()}} or \code{\link[ggplot2:theme_light]{ggplot2::theme_light()}}).}
 }
 \value{
 A \code{\link[ggplot2:theme]{ggplot2::theme()}} object.

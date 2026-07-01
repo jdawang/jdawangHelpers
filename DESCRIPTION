@@ -9,12 +9,12 @@ Description: Shared utility functions for data processing and visualization in
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Imports:
     dplyr,
     forcats,
     ggplot2 (>= 4.0.0),
     gt,
+    httr2,
     purrr,
     scales,
     sf,
@@ -34,3 +34,4 @@ Config/testthat/edition: 3
 Depends: 
     R (>= 3.5)
 LazyData: true
+Config/roxygen2/version: 8.0.0

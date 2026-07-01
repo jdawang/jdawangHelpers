@@ -1,3 +1,116 @@
+#' Download Edmonton General Building Permits from the Open Data SODA3 API
+#'
+#' Fetches all records via the SODA3 GeoJSON endpoint, paginates automatically,
+#' and caches the result to disk. The returned object has column names
+#' compatible with [filter_edmonton_residential()], [add_edmonton_project_type()],
+#' and the rest of the pipeline — do **not** pass the result to
+#' [clean_edmonton_bp_columns()].
+#'
+#' @param cache_dir Path to a local directory for caching downloaded data.
+#'   Cache files are named by the date range, e.g.
+#'   `edmonton_building_permits_2023-01-01_all.rds`.
+#' @param start_date Optional start date (inclusive) for `issue_date` filtering.
+#'   A `Date` or ISO-8601 string. Default `NULL` (no lower bound).
+#' @param end_date Optional end date (inclusive) for `issue_date` filtering.
+#'   A `Date` or ISO-8601 string. Default `NULL` (no upper bound).
+#' @param force_refresh If `TRUE`, re-downloads even if a cached file exists.
+#'   Default `FALSE`.
+#' @param key_id Socrata API key ID. Defaults to `SOCRATA_KEY_ID` env var.
+#' @param key_secret Socrata API key secret. Defaults to `SOCRATA_KEY_SECRET`
+#'   env var.
+#'
+#' @return An `sf` object with Point geometry (CRS 4326; `NA` for permits
+#'   without coordinates), a `date_issued` `Date` column, and all other
+#'   columns from the dataset.
+#' @export
+get_edmonton_building_permit_data <- function(
+    cache_dir,
+    start_date = NULL,
+    end_date = NULL,
+    force_refresh = FALSE,
+    key_id = Sys.getenv("SOCRATA_KEY_ID"),
+    key_secret = Sys.getenv("SOCRATA_KEY_SECRET")) {
+  if (!nzchar(key_id) || !nzchar(key_secret)) {
+    stop(
+      "Socrata credentials not found. ",
+      "Set SOCRATA_KEY_ID and SOCRATA_KEY_SECRET environment variables, ",
+      "or pass key_id and key_secret explicitly."
+    )
+  }
+
+  start_str <- if (is.null(start_date)) "all" else as.character(as.Date(start_date))
+  end_str <- if (is.null(end_date)) "all" else as.character(as.Date(end_date))
+  cache_file <- file.path(
+    cache_dir,
+    sprintf("edmonton_building_permits_%s_%s.rds", start_str, end_str)
+  )
+  if (!force_refresh && file.exists(cache_file)) {
+    return(readRDS(cache_file))
+  }
+
+  date_filters <- c(
+    if (!is.null(start_date)) sprintf("issue_date >= '%s'", as.Date(start_date)),
+    if (!is.null(end_date)) sprintf("issue_date <= '%s'", as.Date(end_date))
+  )
+  where_clause <- if (length(date_filters) > 0) {
+    paste("WHERE", paste(date_filters, collapse = " AND "))
+  } else {
+    ""
+  }
+
+  base_url <- "https://data.edmonton.ca/api/v3/views/24uj-dj8v/query.geojson"
+  page_size <- 50000L
+  offset <- 0L
+  pages <- list()
+
+  repeat {
+    query <- trimws(sprintf(
+      "SELECT * %s ORDER BY :id LIMIT %d OFFSET %d",
+      where_clause, page_size, offset
+    ))
+    resp <- httr2::request(base_url) |>
+      httr2::req_auth_basic(key_id, key_secret) |>
+      httr2::req_url_query(query = query) |>
+      httr2::req_timeout(120) |>
+      httr2::req_retry(max_tries = 3, backoff = \(i) 5) |>
+      httr2::req_perform()
+    httr2::resp_check_status(resp)
+
+    tmp <- tempfile(fileext = ".geojson")
+    on.exit(unlink(tmp), add = TRUE)
+    writeBin(httr2::resp_body_raw(resp), tmp)
+    page <- sf::read_sf(tmp, quiet = TRUE)
+
+    pages <- c(pages, list(page))
+    if (nrow(page) < page_size) break
+    offset <- offset + page_size
+  }
+
+  result <- do.call(rbind, pages)
+
+  result <- dplyr::rename(result, date_issued = "issue_date")
+  result <- dplyr::mutate(
+    result,
+    date_issued = as.Date(.data$date_issued),
+    dplyr::across(
+      dplyr::any_of(c("construction_value", "floor_area", "units_added", "year", "month_number")),
+      as.numeric
+    )
+  )
+  result <- dplyr::select(
+    result,
+    -dplyr::any_of(c(
+      "row_id", "count", "latitude", "longitude", "location",
+      "neighbourhood_numberr", "permit_date"
+    )),
+    -dplyr::starts_with(":")
+  )
+
+  dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
+  saveRDS(result, cache_file)
+  result
+}
+
 #' Clean Edmonton building permit column names
 #'
 #' Renames truncated column names from the Edmonton Open Data building permits
