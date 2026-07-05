@@ -16,6 +16,7 @@ Imports:
     gt,
     httr2,
     purrr,
+    readr,
     scales,
     sf,
     stringr,

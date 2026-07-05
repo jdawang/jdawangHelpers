@@ -76,6 +76,29 @@ load_edmonton_transit_stops <- function(
   stops
 }
 
+#' Compute minimum distance from each row to a reference geometry
+#'
+#' Generic core shared by [add_transit_distance()] and
+#' [add_bike_lane_distance()]. Not exported.
+#'
+#' @param data An `sf` object.
+#' @param ref_geom An `sf` object to measure distance to.
+#' @param distance_col Name of the output column (string).
+#' @param label Value for the output column's `label` attribute.
+#'
+#' @return `data` with a new numeric column named `distance_col` (km).
+#' @keywords internal
+#' @noRd
+add_distance_generic <- function(data, ref_geom, distance_col, label) {
+  dplyr::mutate(
+    data,
+    "{distance_col}" := structure(
+      apply(sf::st_distance(data, ref_geom), 1, min) / 1000,
+      label = label
+    )
+  )
+}
+
 #' Add distance-to-transit column
 #'
 #' Calculates the minimum distance in kilometres from each row to the nearest
@@ -95,13 +118,11 @@ add_transit_distance <- function(data, transit_stops, status_filter = NULL) {
   } else {
     transit_stops
   }
-  data |>
-    dplyr::mutate(
-      distance_from_lrt = structure(
-        apply(sf::st_distance(data, stops), 1, min) / 1000,
-        label = "Distance from closest LRT stop (km)"
-      )
-    )
+  add_distance_generic(
+    data, stops,
+    distance_col = "distance_from_lrt",
+    label = "Distance from closest LRT stop (km)"
+  )
 }
 
 #' Build concentric transit buffer rings
@@ -130,6 +151,32 @@ make_transit_buffers <- function(transit_stops, radii_km = c(1, 1.5, 2)) {
   dplyr::mutate(result, radius = forcats::fct_relevel(.data$radius, labels))
 }
 
+#' Compute weighted ECDF by distance
+#'
+#' Generic core shared by [add_ecdf_by_distance()] and
+#' [add_bike_lane_ecdf_by_distance()]. Not exported.
+#'
+#' @param data A data frame.
+#' @param distance_col Name of the distance column to sort by (string).
+#' @param group_var <[`data-masking`][dplyr::dplyr_data_masking]> Grouping
+#'   variable.
+#' @param weight_var <[`data-masking`][dplyr::dplyr_data_masking]> Variable to
+#'   accumulate.
+#'
+#' @return `data` with new columns `cum_units` and `ecdf_values`, ungrouped.
+#' @keywords internal
+#' @noRd
+add_ecdf_by_distance_generic <- function(data, distance_col, group_var, weight_var) {
+  data |>
+    dplyr::group_by({{ group_var }}) |>
+    dplyr::arrange(.data[[distance_col]], .by_group = TRUE) |>
+    dplyr::mutate(
+      cum_units = cumsum({{ weight_var }}),
+      ecdf_values = .data$cum_units / sum({{ weight_var }})
+    ) |>
+    dplyr::ungroup()
+}
+
 #' Compute weighted ECDF by distance from transit
 #'
 #' Groups `data` by `group_var`, sorts by `distance_from_lrt`, and computes
@@ -150,12 +197,10 @@ add_ecdf_by_distance <- function(
   group_var = year,
   weight_var = units_added
 ) {
-  data |>
-    dplyr::group_by({{ group_var }}) |>
-    dplyr::arrange(.data$distance_from_lrt, .by_group = TRUE) |>
-    dplyr::mutate(
-      cum_units = cumsum({{ weight_var }}),
-      ecdf_values = .data$cum_units / sum({{ weight_var }})
-    ) |>
-    dplyr::ungroup()
+  add_ecdf_by_distance_generic(
+    data,
+    distance_col = "distance_from_lrt",
+    group_var = {{ group_var }},
+    weight_var = {{ weight_var }}
+  )
 }
