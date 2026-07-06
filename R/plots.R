@@ -11,6 +11,8 @@
 #'   line and label.
 #' @param ref_line_km Numeric x-intercept (km) for the reference line.
 #' @param ref_line_label Character label for the reference line.
+#' @param ref_line_label_y Numeric y position (0-1) for the reference line
+#'   label.
 #'
 #' @return A list of ggplot2 layers.
 #' @keywords internal
@@ -21,7 +23,8 @@ layers_ecdf_generic <- function(
   x_max,
   show_ref_line,
   ref_line_km,
-  ref_line_label
+  ref_line_label,
+  ref_line_label_y
 ) {
   layers <- list(
     ggplot2::geom_step(
@@ -44,7 +47,7 @@ layers_ecdf_generic <- function(
         ggplot2::annotate(
           "text",
           x = ref_line_km + 0.5,
-          y = 0.9,
+          y = ref_line_label_y,
           label = ref_line_label
         )
       )
@@ -64,6 +67,8 @@ layers_ecdf_generic <- function(
 #' @param x_max Numeric upper limit for the x axis (km). Defaults to 14.
 #' @param show_800m_line Logical; if `TRUE` (default) adds a dashed vertical
 #'   line and label at 800 m.
+#' @param ref_line_label_y Numeric y position (0-1) for the reference line
+#'   label. Defaults to 0.9.
 #'
 #' @return A list of ggplot2 layers.
 #'
@@ -78,7 +83,8 @@ layers_ecdf_generic <- function(
 layers_transit_ecdf <- function(
   colour_var = year,
   x_max = 14,
-  show_800m_line = TRUE
+  show_800m_line = TRUE,
+  ref_line_label_y = 0.9
 ) {
   layers_ecdf_generic(
     distance_col = "distance_from_lrt",
@@ -86,7 +92,8 @@ layers_transit_ecdf <- function(
     x_max = x_max,
     show_ref_line = show_800m_line,
     ref_line_km = 0.8,
-    ref_line_label = "800m"
+    ref_line_label = "800m",
+    ref_line_label_y = ref_line_label_y
   )
 }
 
@@ -102,13 +109,16 @@ layers_transit_ecdf <- function(
 #' @param x_max Numeric upper limit for the x axis (km). Defaults to 3.
 #' @param show_250m_line Logical; if `TRUE` (default) adds a dashed vertical
 #'   line and label at 250 m.
+#' @param ref_line_label_y Numeric y position (0-1) for the reference line
+#'   label. Defaults to 0.9.
 #'
 #' @return A list of ggplot2 layers.
 #' @export
 layers_bike_lane_ecdf <- function(
   colour_var = year,
   x_max = 3,
-  show_250m_line = TRUE
+  show_250m_line = TRUE,
+  ref_line_label_y = 0.9
 ) {
   layers_ecdf_generic(
     distance_col = "distance_from_bike_infra",
@@ -116,7 +126,8 @@ layers_bike_lane_ecdf <- function(
     x_max = x_max,
     show_ref_line = show_250m_line,
     ref_line_km = 0.25,
-    ref_line_label = "250m"
+    ref_line_label = "250m",
+    ref_line_label_y = ref_line_label_y
   )
 }
 

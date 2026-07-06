@@ -4,7 +4,12 @@
 \alias{layers_transit_ecdf}
 \title{ECDF step plot layers for transit distance}
 \usage{
-layers_transit_ecdf(colour_var = year, x_max = 14, show_800m_line = TRUE)
+layers_transit_ecdf(
+  colour_var = year,
+  x_max = 14,
+  show_800m_line = TRUE,
+  ref_line_label_y = 0.9
+)
 }
 \arguments{
 \item{colour_var}{<\code{\link[ggplot2:aes]{data-masking}}> Variable to colour by.
@@ -14,6 +19,9 @@ Defaults to \code{year}.}
 
 \item{show_800m_line}{Logical; if \code{TRUE} (default) adds a dashed vertical
 line and label at 800 m.}
+
+\item{ref_line_label_y}{Numeric y position (0-1) for the reference line
+label. Defaults to 0.9.}
 }
 \value{
 A list of ggplot2 layers.

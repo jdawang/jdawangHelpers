@@ -4,7 +4,12 @@
 \alias{layers_bike_lane_ecdf}
 \title{ECDF step plot layers for bike infrastructure distance}
 \usage{
-layers_bike_lane_ecdf(colour_var = year, x_max = 3, show_250m_line = TRUE)
+layers_bike_lane_ecdf(
+  colour_var = year,
+  x_max = 3,
+  show_250m_line = TRUE,
+  ref_line_label_y = 0.9
+)
 }
 \arguments{
 \item{colour_var}{<\code{\link[ggplot2:aes]{data-masking}}> Variable to colour by.
@@ -14,6 +19,9 @@ Defaults to \code{year}.}
 
 \item{show_250m_line}{Logical; if \code{TRUE} (default) adds a dashed vertical
 line and label at 250 m.}
+
+\item{ref_line_label_y}{Numeric y position (0-1) for the reference line
+label. Defaults to 0.9.}
 }
 \value{
 A list of ggplot2 layers.
