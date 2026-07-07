@@ -131,6 +131,41 @@ layers_bike_lane_ecdf <- function(
   )
 }
 
+#' ECDF step plot layers for frequent bus stop distance
+#'
+#' Returns a list of ggplot2 layers that plot a cumulative distribution of
+#' units/permits by distance from a frequent bus stop, coloured by a
+#' grouping variable. Mirrors [layers_transit_ecdf()]; expects data prepared
+#' with [add_frequent_bus_distance()] and
+#' [add_frequent_bus_ecdf_by_distance()].
+#'
+#' @param colour_var <[`data-masking`][ggplot2::aes]> Variable to colour by.
+#'   Defaults to `year`.
+#' @param x_max Numeric upper limit for the x axis (km). Defaults to 3.
+#' @param show_400m_line Logical; if `TRUE` (default) adds a dashed vertical
+#'   line and label at 400 m.
+#' @param ref_line_label_y Numeric y position (0-1) for the reference line
+#'   label. Defaults to 0.9.
+#'
+#' @return A list of ggplot2 layers.
+#' @export
+layers_frequent_bus_ecdf <- function(
+  colour_var = year,
+  x_max = 3,
+  show_400m_line = TRUE,
+  ref_line_label_y = 0.9
+) {
+  layers_ecdf_generic(
+    distance_col = "distance_from_frequent_bus",
+    colour_var = {{ colour_var }},
+    x_max = x_max,
+    show_ref_line = show_400m_line,
+    ref_line_km = 0.4,
+    ref_line_label = "400m",
+    ref_line_label_y = ref_line_label_y
+  )
+}
+
 #' Map base layers (water + roads)
 #'
 #' Returns a list of ggplot2 layers adding water and road context to a map.
