@@ -166,42 +166,64 @@ layers_frequent_bus_ecdf <- function(
   )
 }
 
-#' ECDF step plot layers for combined LRT + frequent bus distance ratio
+#' ECDF step plot layers for combined LRT + frequent bus distance
 #'
 #' Returns a list of ggplot2 layers that plot a cumulative distribution of
-#' units/permits by `distance_from_frequent_transit_ratio` (distance to the
-#' nearer of LRT or a frequent bus stop, as a share of that mode's own
-#' walking threshold), coloured by a grouping variable. Mirrors
-#' [layers_transit_ecdf()]; expects data prepared with
+#' units/permits by `distance_from_frequent_transit` (raw distance in km to
+#' the nearer of LRT or a frequent bus stop), coloured by a grouping
+#' variable. Mirrors [layers_transit_ecdf()]; expects data prepared with
 #' [add_frequent_transit_distance()] and
-#' [add_frequent_transit_ecdf_by_distance()].
+#' [add_frequent_transit_ecdf_by_distance()]. Since LRT and frequent bus
+#' stops use different walking thresholds, both are marked with their own
+#' reference line (800m and 400m) rather than a single combined one.
 #'
 #' @param colour_var <[`data-masking`][ggplot2::aes]> Variable to colour by.
 #'   Defaults to `year`.
-#' @param x_max Numeric upper limit for the x axis (ratio). Defaults to 3.
-#' @param show_threshold_line Logical; if `TRUE` (default) adds a dashed
-#'   vertical line and label at a ratio of 1 (i.e. at the relevant walking
-#'   threshold).
-#' @param ref_line_label_y Numeric y position (0-1) for the reference line
-#'   label. Defaults to 0.9.
+#' @param x_max Numeric upper limit for the x axis (km). Defaults to 3.
+#' @param show_threshold_lines Logical; if `TRUE` (default) adds dashed
+#'   vertical lines and labels at 800m (LRT) and 400m (frequent bus).
+#' @param ref_line_label_y Numeric y position (0-1) for the 800m reference
+#'   line label; the 400m label is placed just below it. Defaults to 0.9.
 #'
 #' @return A list of ggplot2 layers.
 #' @export
 layers_frequent_transit_ecdf <- function(
   colour_var = year,
   x_max = 3,
-  show_threshold_line = TRUE,
+  show_threshold_lines = TRUE,
   ref_line_label_y = 0.9
 ) {
-  layers_ecdf_generic(
-    distance_col = "distance_from_frequent_transit_ratio",
+  layers <- layers_ecdf_generic(
+    distance_col = "distance_from_frequent_transit",
     colour_var = {{ colour_var }},
     x_max = x_max,
-    show_ref_line = show_threshold_line,
-    ref_line_km = 1,
-    ref_line_label = "At threshold\n(800m LRT / 400m bus)",
+    show_ref_line = FALSE,
+    ref_line_km = NA,
+    ref_line_label = NA,
     ref_line_label_y = ref_line_label_y
   )
+  if (show_threshold_lines) {
+    layers <- c(
+      layers,
+      list(
+        ggplot2::geom_vline(xintercept = 0.8, linetype = "dashed"),
+        ggplot2::annotate(
+          "text",
+          x = 0.8 + 0.5,
+          y = ref_line_label_y,
+          label = "800m (LRT)"
+        ),
+        ggplot2::geom_vline(xintercept = 0.4, linetype = "dotted"),
+        ggplot2::annotate(
+          "text",
+          x = 0.4 + 0.5,
+          y = ref_line_label_y - 0.1,
+          label = "400m (bus)"
+        )
+      )
+    )
+  }
+  layers
 }
 
 #' Map base layers (water + roads)

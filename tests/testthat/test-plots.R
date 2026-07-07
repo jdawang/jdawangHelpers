@@ -33,13 +33,13 @@ test_that("layers_frequent_transit_ecdf() returns a list", {
   expect_type(result, "list")
 })
 
-test_that("layers_frequent_transit_ecdf() with show_threshold_line = TRUE returns 6 elements", {
-  result <- layers_frequent_transit_ecdf(show_threshold_line = TRUE)
-  expect_length(result, 6)
+test_that("layers_frequent_transit_ecdf() with show_threshold_lines = TRUE returns 8 elements", {
+  result <- layers_frequent_transit_ecdf(show_threshold_lines = TRUE)
+  expect_length(result, 8)
 })
 
-test_that("layers_frequent_transit_ecdf() with show_threshold_line = FALSE returns 4 elements", {
-  result <- layers_frequent_transit_ecdf(show_threshold_line = FALSE)
+test_that("layers_frequent_transit_ecdf() with show_threshold_lines = FALSE returns 4 elements", {
+  result <- layers_frequent_transit_ecdf(show_threshold_lines = FALSE)
   expect_length(result, 4)
 })
 

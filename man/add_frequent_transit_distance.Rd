@@ -2,15 +2,9 @@
 % Please edit documentation in R/transit.R
 \name{add_frequent_transit_distance}
 \alias{add_frequent_transit_distance}
-\title{Add combined LRT + frequent bus distance ratio column}
+\title{Add combined LRT + frequent bus distance column}
 \usage{
-add_frequent_transit_distance(
-  data,
-  transit_stops,
-  frequent_bus_stops,
-  lrt_threshold_km = 0.8,
-  bus_threshold_km = 0.4
-)
+add_frequent_transit_distance(data, transit_stops, frequent_bus_stops)
 }
 \arguments{
 \item{data}{An \code{sf} object.}
@@ -20,24 +14,19 @@ add_frequent_transit_distance(
 
 \item{frequent_bus_stops}{An \code{sf} object of frequent bus stops (e.g. from
 \code{\link[=get_edmonton_frequent_bus_stops]{get_edmonton_frequent_bus_stops()}}).}
-
-\item{lrt_threshold_km}{Numeric walking threshold for LRT, in km. Default
-\code{0.8}.}
-
-\item{bus_threshold_km}{Numeric walking threshold for frequent bus stops,
-in km. Default \code{0.4}.}
 }
 \value{
 The input with \code{distance_from_lrt}, \code{distance_from_frequent_bus},
-and \code{distance_from_frequent_transit_ratio} numeric columns added. The
-ratio column has a \code{label} attribute for use as a default ggplot2 axis
-title.
+and \code{distance_from_frequent_transit} numeric columns added. The combined
+column has a \code{label} attribute for use as a default ggplot2 axis title.
 }
 \description{
 Calculates \code{\link[=add_transit_distance]{add_transit_distance()}} and \code{\link[=add_frequent_bus_distance]{add_frequent_bus_distance()}},
-then adds \code{distance_from_frequent_transit_ratio}: each row's distance to
-the nearer of the two, expressed as a share of that mode's own walking
-threshold. A value at or under 1 means the row is within walking distance
-of LRT or a frequent bus stop (whichever is closer, relative to its own
-threshold).
+then adds \code{distance_from_frequent_transit}: each row's raw distance (km)
+to the nearer of an LRT stop or a frequent bus stop. Because LRT and
+frequent bus stops use different walking thresholds (see
+\code{\link[=layers_frequent_transit_ecdf]{layers_frequent_transit_ecdf()}}), this raw distance isn't itself a
+walkability threshold check; use \code{distance_from_lrt} and
+\code{distance_from_frequent_bus} directly for that (e.g.
+\code{distance_from_lrt <= 0.8 | distance_from_frequent_bus <= 0.4}).
 }

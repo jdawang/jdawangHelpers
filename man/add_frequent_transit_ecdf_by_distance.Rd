@@ -2,7 +2,7 @@
 % Please edit documentation in R/transit.R
 \name{add_frequent_transit_ecdf_by_distance}
 \alias{add_frequent_transit_ecdf_by_distance}
-\title{Compute weighted ECDF by combined LRT + frequent bus distance ratio}
+\title{Compute weighted ECDF by combined LRT + frequent bus distance}
 \usage{
 add_frequent_transit_ecdf_by_distance(
   data,
@@ -22,7 +22,6 @@ accumulate. Defaults to \code{units_added}.}
 }
 \description{
 Thin wrapper around the same generic ECDF machinery used by
-\code{\link[=add_ecdf_by_distance]{add_ecdf_by_distance()}}, operating on
-\code{distance_from_frequent_transit_ratio} (see
-\code{\link[=add_frequent_transit_distance]{add_frequent_transit_distance()}}) instead of \code{distance_from_lrt}.
+\code{\link[=add_ecdf_by_distance]{add_ecdf_by_distance()}}, operating on \code{distance_from_frequent_transit}
+(see \code{\link[=add_frequent_transit_distance]{add_frequent_transit_distance()}}) instead of \code{distance_from_lrt}.
 }

@@ -2,12 +2,12 @@
 % Please edit documentation in R/plots.R
 \name{layers_frequent_transit_ecdf}
 \alias{layers_frequent_transit_ecdf}
-\title{ECDF step plot layers for combined LRT + frequent bus distance ratio}
+\title{ECDF step plot layers for combined LRT + frequent bus distance}
 \usage{
 layers_frequent_transit_ecdf(
   colour_var = year,
   x_max = 3,
-  show_threshold_line = TRUE,
+  show_threshold_lines = TRUE,
   ref_line_label_y = 0.9
 )
 }
@@ -15,24 +15,24 @@ layers_frequent_transit_ecdf(
 \item{colour_var}{<\code{\link[ggplot2:aes]{data-masking}}> Variable to colour by.
 Defaults to \code{year}.}
 
-\item{x_max}{Numeric upper limit for the x axis (ratio). Defaults to 3.}
+\item{x_max}{Numeric upper limit for the x axis (km). Defaults to 3.}
 
-\item{show_threshold_line}{Logical; if \code{TRUE} (default) adds a dashed
-vertical line and label at a ratio of 1 (i.e. at the relevant walking
-threshold).}
+\item{show_threshold_lines}{Logical; if \code{TRUE} (default) adds dashed
+vertical lines and labels at 800m (LRT) and 400m (frequent bus).}
 
-\item{ref_line_label_y}{Numeric y position (0-1) for the reference line
-label. Defaults to 0.9.}
+\item{ref_line_label_y}{Numeric y position (0-1) for the 800m reference
+line label; the 400m label is placed just below it. Defaults to 0.9.}
 }
 \value{
 A list of ggplot2 layers.
 }
 \description{
 Returns a list of ggplot2 layers that plot a cumulative distribution of
-units/permits by \code{distance_from_frequent_transit_ratio} (distance to the
-nearer of LRT or a frequent bus stop, as a share of that mode's own
-walking threshold), coloured by a grouping variable. Mirrors
-\code{\link[=layers_transit_ecdf]{layers_transit_ecdf()}}; expects data prepared with
+units/permits by \code{distance_from_frequent_transit} (raw distance in km to
+the nearer of LRT or a frequent bus stop), coloured by a grouping
+variable. Mirrors \code{\link[=layers_transit_ecdf]{layers_transit_ecdf()}}; expects data prepared with
 \code{\link[=add_frequent_transit_distance]{add_frequent_transit_distance()}} and
-\code{\link[=add_frequent_transit_ecdf_by_distance]{add_frequent_transit_ecdf_by_distance()}}.
+\code{\link[=add_frequent_transit_ecdf_by_distance]{add_frequent_transit_ecdf_by_distance()}}. Since LRT and frequent bus
+stops use different walking thresholds, both are marked with their own
+reference line (800m and 400m) rather than a single combined one.
 }
