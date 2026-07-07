@@ -217,3 +217,74 @@ test_that("add_frequent_bus_ecdf_by_distance cum_units equals cumsum of weight_v
   result_2020 <- result_2020[order(result_2020$distance_from_frequent_bus), ]
   expect_equal(result_2020$cum_units, cumsum(result_2020$units_added))
 })
+
+# add_frequent_transit_distance ------------------------------------------------
+
+test_that("add_frequent_transit_distance takes the min of each mode's own ratio", {
+  # LRT: nearest stop ("Stop A") is 1 km away -> ratio 1 / 0.8 = 1.25
+  # Bus: nearest stop ("Stop A") is 0.4 km away -> ratio 0.4 / 0.4 = 1.00
+  # Combined ratio should be the smaller of the two: 1.00
+  result <- add_frequent_transit_distance(
+    make_data_point(),
+    make_stops(),
+    make_frequent_bus_stops()
+  )
+  expect_equal(
+    result$distance_from_frequent_transit_ratio,
+    1,
+    tolerance = 0.01,
+    ignore_attr = TRUE
+  )
+})
+
+test_that("add_frequent_transit_distance respects custom thresholds", {
+  result <- add_frequent_transit_distance(
+    make_data_point(),
+    make_stops(),
+    make_frequent_bus_stops(),
+    lrt_threshold_km = 2,
+    bus_threshold_km = 2
+  )
+  # LRT ratio 1/2 = 0.5, bus ratio 0.4/2 = 0.2 -> min is 0.2
+  expect_equal(
+    result$distance_from_frequent_transit_ratio,
+    0.2,
+    tolerance = 0.01,
+    ignore_attr = TRUE
+  )
+})
+
+test_that("add_frequent_transit_distance sets label attribute", {
+  result <- add_frequent_transit_distance(
+    make_data_point(),
+    make_stops(),
+    make_frequent_bus_stops()
+  )
+  expect_equal(
+    attr(result$distance_from_frequent_transit_ratio, "label"),
+    "Distance as a share of relevant walking threshold"
+  )
+})
+
+# add_frequent_transit_ecdf_by_distance ----------------------------------------
+
+make_frequent_transit_ecdf_data <- function() {
+  data.frame(
+    year = c(2020, 2020, 2020, 2021, 2021),
+    distance_from_frequent_transit_ratio = c(0.5, 1, 1.5, 0.5, 2),
+    units_added = c(10, 20, 30, 5, 15)
+  )
+}
+
+test_that("add_frequent_transit_ecdf_by_distance ecdf_values max per group is 1", {
+  result <- add_frequent_transit_ecdf_by_distance(make_frequent_transit_ecdf_data())
+  maxes <- tapply(result$ecdf_values, result$year, max)
+  expect_true(all(maxes == 1))
+})
+
+test_that("add_frequent_transit_ecdf_by_distance cum_units equals cumsum of weight_var within group", {
+  result <- add_frequent_transit_ecdf_by_distance(make_frequent_transit_ecdf_data())
+  result_2020 <- result[result$year == 2020, ]
+  result_2020 <- result_2020[order(result_2020$distance_from_frequent_transit_ratio), ]
+  expect_equal(result_2020$cum_units, cumsum(result_2020$units_added))
+})

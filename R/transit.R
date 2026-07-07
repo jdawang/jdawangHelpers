@@ -256,6 +256,51 @@ add_frequent_bus_distance <- function(data, frequent_bus_stops) {
   )
 }
 
+#' Add combined LRT + frequent bus distance ratio column
+#'
+#' Calculates [add_transit_distance()] and [add_frequent_bus_distance()],
+#' then adds `distance_from_frequent_transit_ratio`: each row's distance to
+#' the nearer of the two, expressed as a share of that mode's own walking
+#' threshold. A value at or under 1 means the row is within walking distance
+#' of LRT or a frequent bus stop (whichever is closer, relative to its own
+#' threshold).
+#'
+#' @param data An `sf` object.
+#' @param transit_stops An `sf` object of transit stops (e.g. from
+#'   [load_edmonton_transit_stops()]).
+#' @param frequent_bus_stops An `sf` object of frequent bus stops (e.g. from
+#'   [get_edmonton_frequent_bus_stops()]).
+#' @param lrt_threshold_km Numeric walking threshold for LRT, in km. Default
+#'   `0.8`.
+#' @param bus_threshold_km Numeric walking threshold for frequent bus stops,
+#'   in km. Default `0.4`.
+#'
+#' @return The input with `distance_from_lrt`, `distance_from_frequent_bus`,
+#'   and `distance_from_frequent_transit_ratio` numeric columns added. The
+#'   ratio column has a `label` attribute for use as a default ggplot2 axis
+#'   title.
+#' @export
+add_frequent_transit_distance <- function(
+  data,
+  transit_stops,
+  frequent_bus_stops,
+  lrt_threshold_km = 0.8,
+  bus_threshold_km = 0.4
+) {
+  data |>
+    add_transit_distance(transit_stops) |>
+    add_frequent_bus_distance(frequent_bus_stops) |>
+    dplyr::mutate(
+      distance_from_frequent_transit_ratio = structure(
+        pmin(
+          .data$distance_from_lrt / lrt_threshold_km,
+          .data$distance_from_frequent_bus / bus_threshold_km
+        ),
+        label = "Distance as a share of relevant walking threshold"
+      )
+    )
+}
+
 #' Build concentric transit buffer rings
 #'
 #' Creates `sf` linestring boundaries (rings) around transit stops at each
@@ -352,6 +397,28 @@ add_frequent_bus_ecdf_by_distance <- function(
   add_ecdf_by_distance_generic(
     data,
     distance_col = "distance_from_frequent_bus",
+    group_var = {{ group_var }},
+    weight_var = {{ weight_var }}
+  )
+}
+
+#' Compute weighted ECDF by combined LRT + frequent bus distance ratio
+#'
+#' Thin wrapper around the same generic ECDF machinery used by
+#' [add_ecdf_by_distance()], operating on
+#' `distance_from_frequent_transit_ratio` (see
+#' [add_frequent_transit_distance()]) instead of `distance_from_lrt`.
+#'
+#' @inheritParams add_ecdf_by_distance
+#' @export
+add_frequent_transit_ecdf_by_distance <- function(
+  data,
+  group_var = year,
+  weight_var = units_added
+) {
+  add_ecdf_by_distance_generic(
+    data,
+    distance_col = "distance_from_frequent_transit_ratio",
     group_var = {{ group_var }},
     weight_var = {{ weight_var }}
   )

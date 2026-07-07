@@ -28,6 +28,21 @@ test_that("layers_frequent_bus_ecdf() with show_400m_line = FALSE returns 4 elem
   expect_length(result, 4)
 })
 
+test_that("layers_frequent_transit_ecdf() returns a list", {
+  result <- layers_frequent_transit_ecdf()
+  expect_type(result, "list")
+})
+
+test_that("layers_frequent_transit_ecdf() with show_threshold_line = TRUE returns 6 elements", {
+  result <- layers_frequent_transit_ecdf(show_threshold_line = TRUE)
+  expect_length(result, 6)
+})
+
+test_that("layers_frequent_transit_ecdf() with show_threshold_line = FALSE returns 4 elements", {
+  result <- layers_frequent_transit_ecdf(show_threshold_line = FALSE)
+  expect_length(result, 4)
+})
+
 test_that("layers_map_base() errors when mountainmathHelpers is absent", {
   withr::with_options(list(), {
     testthat::with_mocked_bindings(
